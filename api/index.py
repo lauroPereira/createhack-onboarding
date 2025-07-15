@@ -4,6 +4,11 @@ import os
 from datetime import datetime
 import uuid
 from urllib.parse import urlparse, parse_qs
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+logging.info("Iniciando servidor HTTP")
 
 # Configuração de diretórios para Vercel
 DATA_DIR = '/tmp/data'
@@ -22,14 +27,17 @@ def load_json_file(filename):
     if os.path.exists(filename):
         try:
             with open(filename, 'r', encoding='utf-8') as f:
+                logging.info(f"Carregando dados de {filename}")
                 return json.load(f)
         except:
+            logging.error(f"Erro ao carregar dados de {filename}")
             return []
     return []
 
 def save_json_file(filename, data):
     """Salva dados em um arquivo JSON"""
     with open(filename, 'w', encoding='utf-8') as f:
+        logging.info(f"Salvando dados em {filename}")
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 class handler(BaseHTTPRequestHandler):
@@ -77,6 +85,7 @@ class handler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(response).encode())
     
     def do_POST(self):
+        logging.info("Recebendo requisição POST")
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         data = json.loads(post_data.decode('utf-8'))
@@ -93,6 +102,7 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         
         if path == '/api/register':
+            logging.info("Recebendo requisição POST para /api/register")
             # Validação básica - apenas email é obrigatório
             if not data.get('email'):
                 response = {'error': 'Email é obrigatório'}
@@ -127,17 +137,21 @@ class handler(BaseHTTPRequestHandler):
             }
             
         elif path == '/api/login':
+            logging.info("Recebendo requisição POST para /api/login")
             if not data.get('email'):
                 response = {'error': 'Email é obrigatório'}
                 self.wfile.write(json.dumps(response).encode())
                 return
             
             users = load_json_file(USERS_FILE)
+            logging.info(f"Carregando dados de {USERS_FILE}")
             user = next((u for u in users if u['email'] == data['email']), None)
             
             if not user:
+                logging.info("Email não cadastrado")
                 response = {'error': 'Email não cadastrado. Cadastre-se primeiro.'}
             else:
+                logging.info("Login realizado com sucesso")
                 response = {
                     'message': 'Login realizado com sucesso',
                     'user': {
@@ -147,12 +161,15 @@ class handler(BaseHTTPRequestHandler):
                 }
                 
         elif path == '/api/participants':
+            logging.info("Recebendo requisição POST para /api/participants")
             if not data.get('user_id'):
+                logging.info("ID do usuário é obrigatório")
                 response = {'error': 'ID do usuário é obrigatório'}
                 self.wfile.write(json.dumps(response).encode())
                 return
             
             participants = load_json_file(PARTICIPANTS_FILE)
+            logging.info(f"Carregando dados de {PARTICIPANTS_FILE}")
             existing_index = next((i for i, p in enumerate(participants) if p['user_id'] == data['user_id']), None)
             
             participant_data = {
@@ -168,6 +185,7 @@ class handler(BaseHTTPRequestHandler):
             }
             
             if existing_index is not None:
+                logging.info("Participante atualizado com sucesso")
                 participants[existing_index] = participant_data
                 message = 'Participante atualizado com sucesso'
             else:
@@ -177,6 +195,7 @@ class handler(BaseHTTPRequestHandler):
                 message = 'Participante criado com sucesso'
             
             save_json_file(PARTICIPANTS_FILE, participants)
+            logging.info("Participante salvo com sucesso")
             response = {
                 'message': message,
                 'participant': participant_data

@@ -150,6 +150,11 @@ if (document.getElementById('loginForm')) {
         try {
             const response = await API.login(email);
             
+            // Verificar se a resposta contém um usuário válido
+            if (!response.user || !response.user.id) {
+                throw new Error('Dados de usuário inválidos na resposta');
+            }
+            
             // Salvar usuário no localStorage
             Storage.setUser(response.user);
             
