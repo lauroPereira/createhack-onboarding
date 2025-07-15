@@ -30,12 +30,27 @@ const Render = {
     participantCard: (participant) => {
         const photoSrc = participant.photo || 'frontend/assets/img/default-avatar.jpg';
         
-        const skillsHtml = participant.skills && participant.skills.length > 0 
+        const phoneHtml = participant.phone ? `
+            <div class="participant-phone">
+                <img src="assets/img/phone-icon.svg" alt="Phone" class="icon" />
+                <a href="https://wa.me/${participant.phone}" target="_blank">${participant.phone}</a>
+            </div>
+        ` : '';
+
+        const linkedinHtml = participant.linkedin ? `
+            <div class="participant-linkedin">
+                <img src="assets/img/linkedin-icon.svg" alt="LinkedIn" class="icon" />
+                <a href="${participant.linkedin}" target="_blank">LinkedIn</a>
+            </div>
+        ` : '';
+
+        const skillsHtml = participant.skills && participant.skills.length > 0
             ? participant.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
             : '<span class="text-gray">Nenhuma skill cadastrada</span>';
         
         const age = participant.age ? `${participant.age} anos` : '';
         const location = [participant.city, participant.church].filter(Boolean).join(' • ');
+        
         
         return `
             <div class="participant-card fade-in">
@@ -55,6 +70,8 @@ const Render = {
                 <div class="skills-container">
                     ${skillsHtml}
                 </div>
+                ${phoneHtml}
+                ${linkedinHtml}
             </div>
         `;
     },
@@ -251,16 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Função para atualizar a lista (pode ser chamada após criar/editar perfil)
-window.refreshParticipants = () => {
-    loadParticipants();
-};
+// window.refreshParticipants = () => {
+//     loadParticipants();
+// };
 
-// Auto-refresh a cada 30 segundos para pegar novos participantes
-setInterval(() => {
-    if (document.visibilityState === 'visible') {
-        loadParticipants();
-    }
-}, 30000);
+// // Auto-refresh a cada 30 segundos para pegar novos participantes
+// setInterval(() => {
+//     if (document.visibilityState === 'visible') {
+//         loadParticipants();
+//     }
+// }, 30000);
 
 // Animações de entrada escalonadas para os cards
 const observerOptions = {
