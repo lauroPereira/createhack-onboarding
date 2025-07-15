@@ -22,6 +22,15 @@ def create_app():
 
     @app.route('/api/check-email')
     def check_email():
+        """
+        Verifica se um email ja esta cadastrado no banco de dados
+
+        Args:
+            email (str): Email a ser verificado
+
+        Returns:
+            bool: True se o email ja esta cadastrado, False caso contrario
+        """
         email = request.args.get('email')
         logger.info("Checking email for %s", email)
         if not email:
@@ -33,6 +42,16 @@ def create_app():
 
     @app.route('/api/register', methods=['POST'])
     def register():
+        """
+        Cadastra um novo usuario no banco de dados
+
+        Args:
+            email (str): Email do usuario
+            name (str): Nome do usuario
+
+        Returns:
+            dict: Dados do usuario cadastrado
+        """
         payload = request.get_json() or {}
         logger.info("Registering user %s", payload)
         email = payload.get('email')
@@ -56,20 +75,49 @@ def create_app():
 
     @app.route('/api/login', methods=['POST'])
     def login():
+        """
+        Realiza login de um usuario no banco de dados
+
+        Args:
+            email (str): Email do usuario
+
+        Returns:
+            dict: Dados do usuario logado
+        """
         payload = request.get_json() or {}
         logger.info("Logging in user %s", payload)
         email = payload.get('email')
         if not email:
             return jsonify(error='Email é obrigatório'), 400
-        data = supabase.table('users').select('id,email,name').eq('email', email).single().execute()
-        if not data.data:
+        try:
+            data = supabase.table('users').select('id,email,name').eq('email', email).single().execute()
+            user = data.data
+        except APIError:
+            user = None
+        if not user:
             logger.warning("Login failed for email: %s", email)
             return jsonify(error='Email não cadastrado. Cadastre-se primeiro.'), 404
-        logger.info("User logged in: %s", data.data)
-        return jsonify(message='Login realizado com sucesso', user=data.data)
+        logger.info("User logged in: %s", user)
+        return jsonify(message='Login realizado com sucesso', user=user)
 
     @app.route('/api/participants', methods=['GET', 'POST'])
     def participants():
+        """
+        Obtem ou cria um participante no banco de dados
+
+        Args:
+            user_id (str): ID do usuario
+            name (str): Nome do participante
+            city (str): Cidade do participante
+            church (str): Igreja do participante
+            age (int): Idade do participante
+            bio (str): Bio do participante
+            skills (list): Habilidades do participante
+            photo (str): Foto do participante
+
+        Returns:
+            dict: Dados do participante
+        """
         if request.method == 'GET':
             logger.info("Fetching participants list")
             data = supabase.table('participants').select('*').execute()
@@ -93,11 +141,12 @@ def create_app():
             'photo': payload.get('photo'),
             'updated_at': now
         }
-        existing = supabase.table('participants').select('id').eq('user_id', user_id).single().execute()
-        logger.info("Participants existing: %s", existing.data)
+        existing = supabase.table('participants').select('id').eq('user_id', user_id).execute()
+        exists = bool(existing.data)
+        logger.info("Participants existing: %s", exists)
 
         try:
-            if existing.data:
+            if exists:
                 logger.info("Updating participant record: %s", record)
                 result = supabase.table('participants').update(record).eq('user_id', user_id).execute()
                 participant_data = result.data[0] if result.data else record
@@ -119,8 +168,21 @@ def create_app():
 
     @app.route('/api/participants/<user_id>')
     def get_participant(user_id):
+        """
+        Obtem um participante no banco de dados
+
+        Args:
+            user_id (str): ID do usuario
+
+        Returns:
+            dict: Dados do participante
+        """
         logger.info("Getting participant for user %s", user_id)
-        data = supabase.table('participants').select('*').eq('user_id', user_id).single().execute()
+        try:
+            data = supabase.table('participants').select('*').eq('user_id', user_id).single().execute()
+        except APIError as err:
+            logger.error("Error fetching participant: %s", err)
+            return jsonify(error='Erro ao buscar participante'), 500
         if not data.data:
             logger.warning("Participant not found: %s", user_id)
             return jsonify(error='Participante não encontrado'), 404
@@ -129,6 +191,12 @@ def create_app():
 
     @app.route('/health')
     def health():
+        """
+        Verifica se o servidor esta funcionando
+
+        Returns:
+            dict: Status do servidor
+        """
         logger.info("Health check")
         return {'status': 'ok'}
 
@@ -139,5 +207,3 @@ app = create_app()
 
 if __name__ == '__main__':
     logger.info("Starting server locally")
-    app.run(host='0.0.0.0', port=5000, debug=True)
-    
