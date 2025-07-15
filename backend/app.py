@@ -8,9 +8,9 @@ import uuid
 app = Flask(__name__)
 CORS(app)
 
-# Configuração de diretórios
-DATA_DIR = 'data'
-UPLOAD_DIR = 'uploads'
+# Configuração de diretórios para Vercel
+DATA_DIR = '/tmp/data'
+UPLOAD_DIR = '/tmp/uploads'
 
 # Criar diretórios se não existirem
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -171,14 +171,9 @@ def get_participant(user_id):
     
     return jsonify(participant), 200
 
-# Servir arquivos estáticos do frontend
-@app.route('/')
-def serve_index():
-    return send_from_directory('../frontend', 'index.html')
-
-@app.route('/<path:path>')
-def serve_static(path):
-    return send_from_directory('../frontend', path)
+# Handler para Vercel (função serverless)
+def handler(request):
+    return app(request.environ, lambda status, headers: None)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
