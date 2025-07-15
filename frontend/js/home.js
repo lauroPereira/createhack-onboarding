@@ -28,7 +28,7 @@ const ParticipantsAPI = {
 // Utilitários para renderização
 const Render = {
     participantCard: (participant) => {
-        const photoSrc = participant.photo || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%2300ff41"/><text x="50" y="60" text-anchor="middle" fill="black" font-size="40">👤</text></svg>';
+        const photoSrc = participant.photo || 'frontend/assets/img/default-avatar.jpg';
         
         const skillsHtml = participant.skills && participant.skills.length > 0 
             ? participant.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
