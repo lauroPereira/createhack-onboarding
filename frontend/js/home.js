@@ -11,6 +11,9 @@ let currentFilters = {
 // API para participantes
 const ParticipantsAPI = {
     getAll: async () => {
+        const API_BASE_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000/api'
+            : '/api';
         const response = await fetch(`${API_BASE_URL}/participants`);
         const data = await response.json();
         

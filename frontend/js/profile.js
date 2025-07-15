@@ -6,6 +6,9 @@ let isEditing = false;
 // API para perfil
 const ProfileAPI = {
     get: async (userId) => {
+        const API_BASE_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000/api'
+            : '/api';
         const response = await fetch(`${API_BASE_URL}/participants/${userId}`);
         
         if (response.status === 404) {
@@ -22,6 +25,9 @@ const ProfileAPI = {
     },
     
     save: async (participantData) => {
+        const API_BASE_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000/api'
+            : '/api';
         const response = await fetch(`${API_BASE_URL}/participants`, {
             method: 'POST',
             headers: {
