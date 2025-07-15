@@ -66,13 +66,13 @@ const UI = {
 
 // Funções de API
 const API = {
-    login: async (email, password) => {
+    login: async (email) => {
         const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email })
         });
         
         const data = await response.json();
@@ -84,13 +84,13 @@ const API = {
         return data;
     },
     
-    register: async (email, password, name) => {
+    register: async (email, name) => {
         const response = await fetch(`${API_BASE_URL}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, password, name })
+            body: JSON.stringify({ email, name })
         });
         
         const data = await response.json();
@@ -121,10 +121,6 @@ const Validation = {
         return emailRegex.test(email);
     },
     
-    password: (password) => {
-        return password.length >= 6;
-    },
-    
     name: (name) => {
         return name.trim().length >= 2;
     }
@@ -136,11 +132,10 @@ if (document.getElementById('loginForm')) {
         e.preventDefault();
         
         const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
         
         // Validações básicas
-        if (!email || !password) {
-            UI.showMessage('Por favor, preencha todos os campos');
+        if (!email) {
+            UI.showMessage('Por favor, preencha o email');
             return;
         }
         
@@ -153,7 +148,7 @@ if (document.getElementById('loginForm')) {
         UI.setLoading('loginBtn', 'loginText', 'loginLoading', true);
         
         try {
-            const response = await API.login(email, password);
+            const response = await API.login(email);
             
             // Salvar usuário no localStorage
             Storage.setUser(response.user);
@@ -180,11 +175,9 @@ if (document.getElementById('registerForm')) {
         
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
         
         // Validações
-        if (!name || !email || !password || !confirmPassword) {
+        if (!name || !email) {
             UI.showMessage('Por favor, preencha todos os campos');
             return;
         }
@@ -199,21 +192,11 @@ if (document.getElementById('registerForm')) {
             return;
         }
         
-        if (!Validation.password(password)) {
-            UI.showMessage('Senha deve ter pelo menos 6 caracteres');
-            return;
-        }
-        
-        if (password !== confirmPassword) {
-            UI.showMessage('Senhas não coincidem');
-            return;
-        }
-        
         UI.hideMessage();
         UI.setLoading('registerBtn', 'registerText', 'registerLoading', true);
         
         try {
-            const response = await API.register(email, password, name);
+            const response = await API.register(email, name);
             
             // Salvar usuário no localStorage
             Storage.setUser(response.user);
@@ -327,14 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (input.type === 'email' && value) {
                 if (Validation.email(value)) {
-                    input.style.borderColor = 'var(--light-green)';
-                } else {
-                    input.style.borderColor = '#ff6b6b';
-                }
-            }
-            
-            if (input.type === 'password' && value) {
-                if (Validation.password(value)) {
                     input.style.borderColor = 'var(--light-green)';
                 } else {
                     input.style.borderColor = '#ff6b6b';
