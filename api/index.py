@@ -1,3 +1,43 @@
+import sqlite3
+
+def init_db():
+    """Initializa o banco de dados e cria as tabelas necessárias."""
+    conn = sqlite3.connect('backend/data/database.db')
+    cursor = conn.cursor()
+    
+    # Criar tabela de usuários
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        created_at TEXT NOT NULL
+    )
+    ''')
+    
+    # Criar tabela de participantes
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS participants (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT,
+        city TEXT,
+        church TEXT,
+        age TEXT,
+        bio TEXT,
+        skills TEXT,
+        photo TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+# Chamar a função de inicialização do banco de dados
+init_db()
 from http.server import BaseHTTPRequestHandler
 import json
 import os
@@ -109,30 +149,32 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode())
                 return
             
-            # Carregar usuários existentes
-            users = load_json_file(USERS_FILE)
+            conn = sqlite3.connect('backend/data/database.db')
+            cursor = conn.cursor()
             
             # Verificar se email já existe
-            if any(user['email'] == data['email'] for user in users):
+            cursor.execute('SELECT * FROM users WHERE email = ?', (data['email'],))
+            if cursor.fetchone():
+                conn.close()
                 response = {'error': 'Email já cadastrado'}
                 self.wfile.write(json.dumps(response).encode())
                 return
             
-            # Criar novo usuário apenas com email
-            new_user = {
-                'id': str(uuid.uuid4()),
-                'email': data['email'],
-                'created_at': datetime.now().isoformat()
-            }
+            # Criar novo usuário
+            new_user_id = str(uuid.uuid4())
+            cursor.execute('''
+                INSERT INTO users (id, email, password, created_at)
+                VALUES (?, ?, ?, ?)
+            ''', (new_user_id, data['email'], data.get('password', ''), datetime.now().isoformat()))
             
-            users.append(new_user)
-            save_json_file(USERS_FILE, users)
+            conn.commit()
+            conn.close()
             
             response = {
                 'message': 'Email cadastrado com sucesso',
                 'user': {
-                    'id': new_user['id'],
-                    'email': new_user['email']
+                    'id': new_user_id,
+                    'email': data['email']
                 }
             }
             
@@ -168,9 +210,12 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode())
                 return
             
-            participants = load_json_file(PARTICIPANTS_FILE)
-            logging.info(f"Carregando dados de {PARTICIPANTS_FILE}")
-            existing_index = next((i for i, p in enumerate(participants) if p['user_id'] == data['user_id']), None)
+            conn = sqlite3.connect('backend/data/database.db')
+            cursor = conn.cursor()
+            
+            # Verificar se participante já existe
+            cursor.execute('SELECT * FROM participants WHERE user_id = ?', (data['user_id'],))
+            existing_participant = cursor.fetchone()
             
             participant_data = {
                 'user_id': data['user_id'],
@@ -184,17 +229,26 @@ class handler(BaseHTTPRequestHandler):
                 'updated_at': datetime.now().isoformat()
             }
             
-            if existing_index is not None:
+            if existing_participant:
                 logging.info("Participante atualizado com sucesso")
-                participants[existing_index] = participant_data
+                cursor.execute('''
+                    UPDATE participants SET name = ?, city = ?, church = ?, age = ?, bio = ?, skills = ?, photo = ?, updated_at = ?
+                    WHERE user_id = ?
+                ''', (participant_data['name'], participant_data['city'], participant_data['church'], participant_data['age'], participant_data['bio'], json.dumps(participant_data['skills']), participant_data['photo'], participant_data['updated_at'], data['user_id']))
                 message = 'Participante atualizado com sucesso'
             else:
-                participant_data['id'] = str(uuid.uuid4())
+                participant_id = str(uuid.uuid4())
+                participant_data['id'] = participant_id
                 participant_data['created_at'] = datetime.now().isoformat()
-                participants.append(participant_data)
+                cursor.execute('''
+                    INSERT INTO participants (id, user_id, name, city, church, age, bio, skills, photo, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (participant_id, data['user_id'], participant_data['name'], participant_data['city'], participant_data['church'], participant_data['age'], participant_data['bio'], json.dumps(participant_data['skills']), participant_data['photo'], participant_data['created_at'], participant_data['updated_at']))
                 message = 'Participante criado com sucesso'
             
-            save_json_file(PARTICIPANTS_FILE, participants)
+            conn.commit()
+            conn.close()
+            
             logging.info("Participante salvo com sucesso")
             response = {
                 'message': message,
