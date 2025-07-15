@@ -426,10 +426,10 @@ const additionalStyles = `
     @media (max-width: 768px) {
         .form-container {
             padding: 20px;
-        document.getElementById('celular').addEventListener('click', function() {
-            const celular = this.value;
-            if (celular) {
-                const whatsappUrl = 'https://wa.me/${celular}';
+        document.getElementById('phone').addEventListener('click', function() {
+            const phone = this.value;
+            if (phone) {
+                const whatsappUrl = 'https://wa.me/${phone}';
                 window.open(whatsappUrl, '_blank');
             }
         });
@@ -446,20 +446,20 @@ document.head.appendChild(styleSheet);
 
 // Tornar SkillsManager global para uso nos event handlers inline
 window.SkillsManager = SkillsManager;
-// Add functionality to redirect to WhatsApp when clicking on celular
-document.getElementById('celular').addEventListener('click', function() {
-    const celular = this.value;
-    if (celular) {
-        const whatsappUrl = `https://wa.me/${celular}`;
+// Add functionality to redirect to WhatsApp when clicking on phone
+document.getElementById('phone').addEventListener('click', function() {
+    const phone = this.value;
+    if (phone) {
+        const whatsappUrl = `https://wa.me/${phone}`;
         window.open(whatsappUrl, '_blank');
     }
 });
 
-// Add functionality to redirect to WhatsApp when clicking on celular
-document.getElementById('celular').addEventListener('click', function() {
-    const celular = this.value;
-    if (celular) {
-        const whatsappUrl = `https://wa.me/${celular}`;
+// Add functionality to redirect to WhatsApp when clicking on phone
+document.getElementById('phone').addEventListener('click', function() {
+    const phone = this.value;
+    if (phone) {
+        const whatsappUrl = `https://wa.me/${phone}`;
         window.open(whatsappUrl, '_blank');
     }
 });

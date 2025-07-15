@@ -142,7 +142,7 @@ def create_app():
             'skills': payload.get('skills', []),
             'photo': payload.get('photo'),
             'updated_at': now,
-            'celular': payload.get('celular'),
+            'phone': payload.get('phone'),
             'linkedin': payload.get('linkedin')
         }
         
