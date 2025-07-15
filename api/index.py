@@ -1,12 +1,9 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from http.server import BaseHTTPRequestHandler
 import json
 import os
 from datetime import datetime
 import uuid
-
-app = Flask(__name__)
-CORS(app)
+from urllib.parse import urlparse, parse_qs
 
 # Configuração de diretórios para Vercel
 DATA_DIR = '/tmp/data'
@@ -35,145 +32,167 @@ def save_json_file(filename, data):
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-# Rotas de autenticação
-@app.route('/api/register', methods=['POST'])
-def register():
-    """Registra um novo usuário"""
-    data = request.get_json()
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+        query = parse_qs(parsed_path.query)
+        
+        # Headers CORS
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+        
+        if path == '/api/check-email':
+            email = query.get('email', [None])[0]
+            if not email:
+                response = {'error': 'Email é obrigatório'}
+                self.wfile.write(json.dumps(response).encode())
+                return
+            
+            users = load_json_file(USERS_FILE)
+            exists = any(user['email'] == email for user in users)
+            response = {'exists': exists}
+            
+        elif path == '/api/participants':
+            participants = load_json_file(PARTICIPANTS_FILE)
+            response = participants
+            
+        elif path.startswith('/api/participants/'):
+            user_id = path.split('/')[-1]
+            participants = load_json_file(PARTICIPANTS_FILE)
+            participant = next((p for p in participants if p['user_id'] == user_id), None)
+            
+            if not participant:
+                response = {'error': 'Participante não encontrado'}
+            else:
+                response = participant
+                
+        else:
+            response = {'message': 'API funcionando'}
+        
+        self.wfile.write(json.dumps(response).encode())
     
-    # Validação básica
-    if not data.get('email') or not data.get('password') or not data.get('name'):
-        return jsonify({'error': 'Email, senha e nome são obrigatórios'}), 400
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data.decode('utf-8'))
+        
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+        
+        # Headers CORS
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+        
+        if path == '/api/register':
+            # Validação básica
+            if not data.get('email') or not data.get('password') or not data.get('name'):
+                response = {'error': 'Email, senha e nome são obrigatórios'}
+                self.wfile.write(json.dumps(response).encode())
+                return
+            
+            # Carregar usuários existentes
+            users = load_json_file(USERS_FILE)
+            
+            # Verificar se email já existe
+            if any(user['email'] == data['email'] for user in users):
+                response = {'error': 'Email já cadastrado'}
+                self.wfile.write(json.dumps(response).encode())
+                return
+            
+            # Criar novo usuário
+            new_user = {
+                'id': str(uuid.uuid4()),
+                'email': data['email'],
+                'password': data['password'],
+                'name': data['name'],
+                'created_at': datetime.now().isoformat()
+            }
+            
+            users.append(new_user)
+            save_json_file(USERS_FILE, users)
+            
+            response = {
+                'message': 'Usuário criado com sucesso',
+                'user': {
+                    'id': new_user['id'],
+                    'email': new_user['email'],
+                    'name': new_user['name']
+                }
+            }
+            
+        elif path == '/api/login':
+            if not data.get('email') or not data.get('password'):
+                response = {'error': 'Email e senha são obrigatórios'}
+                self.wfile.write(json.dumps(response).encode())
+                return
+            
+            users = load_json_file(USERS_FILE)
+            user = next((u for u in users if u['email'] == data['email'] and u['password'] == data['password']), None)
+            
+            if not user:
+                response = {'error': 'Email ou senha inválidos'}
+            else:
+                response = {
+                    'message': 'Login realizado com sucesso',
+                    'user': {
+                        'id': user['id'],
+                        'email': user['email'],
+                        'name': user['name']
+                    }
+                }
+                
+        elif path == '/api/participants':
+            if not data.get('user_id'):
+                response = {'error': 'ID do usuário é obrigatório'}
+                self.wfile.write(json.dumps(response).encode())
+                return
+            
+            participants = load_json_file(PARTICIPANTS_FILE)
+            existing_index = next((i for i, p in enumerate(participants) if p['user_id'] == data['user_id']), None)
+            
+            participant_data = {
+                'user_id': data['user_id'],
+                'name': data.get('name', ''),
+                'city': data.get('city', ''),
+                'church': data.get('church', ''),
+                'age': data.get('age', ''),
+                'bio': data.get('bio', ''),
+                'skills': data.get('skills', []),
+                'photo': data.get('photo', ''),
+                'updated_at': datetime.now().isoformat()
+            }
+            
+            if existing_index is not None:
+                participants[existing_index] = participant_data
+                message = 'Participante atualizado com sucesso'
+            else:
+                participant_data['id'] = str(uuid.uuid4())
+                participant_data['created_at'] = datetime.now().isoformat()
+                participants.append(participant_data)
+                message = 'Participante criado com sucesso'
+            
+            save_json_file(PARTICIPANTS_FILE, participants)
+            response = {
+                'message': message,
+                'participant': participant_data
+            }
+        else:
+            response = {'error': 'Endpoint não encontrado'}
+        
+        self.wfile.write(json.dumps(response).encode())
     
-    # Carregar usuários existentes
-    users = load_json_file(USERS_FILE)
-    
-    # Verificar se email já existe
-    if any(user['email'] == data['email'] for user in users):
-        return jsonify({'error': 'Email já cadastrado'}), 400
-    
-    # Criar novo usuário
-    new_user = {
-        'id': str(uuid.uuid4()),
-        'email': data['email'],
-        'password': data['password'],  # Em produção, usar hash
-        'name': data['name'],
-        'created_at': datetime.now().isoformat()
-    }
-    
-    users.append(new_user)
-    save_json_file(USERS_FILE, users)
-    
-    return jsonify({
-        'message': 'Usuário criado com sucesso',
-        'user': {
-            'id': new_user['id'],
-            'email': new_user['email'],
-            'name': new_user['name']
-        }
-    }), 201
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    """Autentica um usuário"""
-    data = request.get_json()
-    
-    if not data.get('email') or not data.get('password'):
-        return jsonify({'error': 'Email e senha são obrigatórios'}), 400
-    
-    users = load_json_file(USERS_FILE)
-    
-    # Buscar usuário
-    user = next((u for u in users if u['email'] == data['email'] and u['password'] == data['password']), None)
-    
-    if not user:
-        return jsonify({'error': 'Email ou senha inválidos'}), 401
-    
-    return jsonify({
-        'message': 'Login realizado com sucesso',
-        'user': {
-            'id': user['id'],
-            'email': user['email'],
-            'name': user['name']
-        }
-    }), 200
-
-@app.route('/api/check-email', methods=['GET'])
-def check_email():
-    """Verifica se email já existe"""
-    email = request.args.get('email')
-    if not email:
-        return jsonify({'error': 'Email é obrigatório'}), 400
-    
-    users = load_json_file(USERS_FILE)
-    exists = any(user['email'] == email for user in users)
-    
-    return jsonify({'exists': exists}), 200
-
-# Rotas de participantes
-@app.route('/api/participants', methods=['GET'])
-def get_participants():
-    """Lista todos os participantes"""
-    participants = load_json_file(PARTICIPANTS_FILE)
-    return jsonify(participants), 200
-
-@app.route('/api/participants', methods=['POST'])
-def create_participant():
-    """Cria ou atualiza um participante"""
-    data = request.get_json()
-    
-    if not data.get('user_id'):
-        return jsonify({'error': 'ID do usuário é obrigatório'}), 400
-    
-    participants = load_json_file(PARTICIPANTS_FILE)
-    
-    # Verificar se participante já existe
-    existing_index = next((i for i, p in enumerate(participants) if p['user_id'] == data['user_id']), None)
-    
-    participant_data = {
-        'user_id': data['user_id'],
-        'name': data.get('name', ''),
-        'city': data.get('city', ''),
-        'church': data.get('church', ''),
-        'age': data.get('age', ''),
-        'bio': data.get('bio', ''),
-        'skills': data.get('skills', []),
-        'photo': data.get('photo', ''),
-        'updated_at': datetime.now().isoformat()
-    }
-    
-    if existing_index is not None:
-        # Atualizar participante existente
-        participants[existing_index] = participant_data
-        message = 'Participante atualizado com sucesso'
-    else:
-        # Criar novo participante
-        participant_data['id'] = str(uuid.uuid4())
-        participant_data['created_at'] = datetime.now().isoformat()
-        participants.append(participant_data)
-        message = 'Participante criado com sucesso'
-    
-    save_json_file(PARTICIPANTS_FILE, participants)
-    
-    return jsonify({
-        'message': message,
-        'participant': participant_data
-    }), 200
-
-@app.route('/api/participants/<user_id>', methods=['GET'])
-def get_participant(user_id):
-    """Busca um participante específico"""
-    participants = load_json_file(PARTICIPANTS_FILE)
-    participant = next((p for p in participants if p['user_id'] == user_id), None)
-    
-    if not participant:
-        return jsonify({'error': 'Participante não encontrado'}), 404
-    
-    return jsonify(participant), 200
-
-# Handler para Vercel
-def handler(request):
-    return app(request.environ, lambda status, headers: None)
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()

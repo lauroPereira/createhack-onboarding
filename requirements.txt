@@ -1,2 +1,1 @@
-Flask==2.3.3
-Flask-CORS==4.0.0
+# No dependencies needed for basic HTTP handler
