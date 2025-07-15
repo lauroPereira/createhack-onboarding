@@ -1,3 +1,44 @@
+import sqlite3
+
+def init_db():
+    """Initializa o banco de dados e cria as tabelas necessárias."""
+    conn = sqlite3.connect('backend/data/database.db')
+    cursor = conn.cursor()
+    
+    # Criar tabela de usuários
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL
+    )
+    ''')
+    
+    # Criar tabela de participantes
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS participants (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT,
+        city TEXT,
+        church TEXT,
+        age TEXT,
+        bio TEXT,
+        skills TEXT,
+        photo TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+# Chamar a função de inicialização do banco de dados
+init_db()
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import json
@@ -45,24 +86,33 @@ def register():
     if not data.get('email') or not data.get('password') or not data.get('name'):
         return jsonify({'error': 'Email, senha e nome são obrigatórios'}), 400
     
-    # Carregar usuários existentes
-    users = load_json_file(USERS_FILE)
+    conn = sqlite3.connect('backend/data/database.db')
+    cursor = conn.cursor()
     
     # Verificar se email já existe
-    if any(user['email'] == data['email'] for user in users):
+    cursor.execute('SELECT * FROM users WHERE email = ?', (data['email'],))
+    if cursor.fetchone():
+        conn.close()
         return jsonify({'error': 'Email já cadastrado'}), 400
     
     # Criar novo usuário
-    new_user = {
-        'id': str(uuid.uuid4()),
-        'email': data['email'],
-        'password': data['password'],  # Em produção, usar hash
-        'name': data['name'],
-        'created_at': datetime.now().isoformat()
-    }
+    new_user_id = str(uuid.uuid4())
+    cursor.execute('''
+        INSERT INTO users (id, email, password, name, created_at)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (new_user_id, data['email'], data['password'], data['name'], datetime.now().isoformat()))
     
-    users.append(new_user)
-    save_json_file(USERS_FILE, users)
+    conn.commit()
+    conn.close()
+    
+    return jsonify({
+        'message': 'Usuário criado com sucesso',
+        'user': {
+            'id': new_user_id,
+            'email': data['email'],
+            'name': data['name']
+        }
+    }), 201
     
     return jsonify({
         'message': 'Usuário criado com sucesso',
@@ -125,10 +175,12 @@ def create_participant():
     if not data.get('user_id'):
         return jsonify({'error': 'ID do usuário é obrigatório'}), 400
     
-    participants = load_json_file(PARTICIPANTS_FILE)
+    conn = sqlite3.connect('backend/data/database.db')
+    cursor = conn.cursor()
     
     # Verificar se participante já existe
-    existing_index = next((i for i, p in enumerate(participants) if p['user_id'] == data['user_id']), None)
+    cursor.execute('SELECT * FROM participants WHERE user_id = ?', (data['user_id'],))
+    existing_participant = cursor.fetchone()
     
     participant_data = {
         'user_id': data['user_id'],
@@ -142,18 +194,29 @@ def create_participant():
         'updated_at': datetime.now().isoformat()
     }
     
-    if existing_index is not None:
+    if existing_participant:
         # Atualizar participante existente
-        participants[existing_index] = participant_data
+        cursor.execute('''
+            UPDATE participants SET name = ?, city = ?, church = ?, age = ?, bio = ?, skills = ?, photo = ?, updated_at = ?
+            WHERE user_id = ?
+        ''', (participant_data['name'], participant_data['city'], participant_data['church'], participant_data['age'], participant_data['bio'], json.dumps(participant_data['skills']), participant_data['photo'], participant_data['updated_at'], data['user_id']))
         message = 'Participante atualizado com sucesso'
     else:
         # Criar novo participante
-        participant_data['id'] = str(uuid.uuid4())
-        participant_data['created_at'] = datetime.now().isoformat()
-        participants.append(participant_data)
+        participant_id = str(uuid.uuid4())
+        cursor.execute('''
+            INSERT INTO participants (id, user_id, name, city, church, age, bio, skills, photo, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (participant_id, data['user_id'], participant_data['name'], participant_data['city'], participant_data['church'], participant_data['age'], participant_data['bio'], json.dumps(participant_data['skills']), participant_data['photo'], datetime.now().isoformat(), participant_data['updated_at']))
         message = 'Participante criado com sucesso'
     
-    save_json_file(PARTICIPANTS_FILE, participants)
+    conn.commit()
+    conn.close()
+    
+    return jsonify({
+        'message': message,
+        'participant': participant_data
+    }), 200
     
     return jsonify({
         'message': message,
