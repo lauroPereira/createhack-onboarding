@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKATHON CREATORS - Perfil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="logo">HACKATHON CREATORS</div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <span class="text-gray">Olá, <span id="userName" class="text-green"></span></span>
+                    <button id="homeBtn" class="btn btn-secondary">
+                        🏠 HOME
+                    </button>
+                    <button id="logoutBtn" class="btn btn-secondary">
+                        🚪 SAIR
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="fade-in">
+                <h1>CONFIGURE SEU PERFIL DE CREATOR</h1>
+                <p class="text-center text-gray mb-20">Preencha suas informações para que outros creators possam te encontrar</p>
+                
+                <div class="form-container" style="max-width: 600px;">
+                    <div id="message" class="message hidden"></div>
+                    
+                    <form id="profileForm">
+                        <!-- Upload de foto -->
+                        <div class="form-group text-center">
+                            <label class="form-label">FOTO DE PERFIL</label>
+                            <div class="photo-upload-container" style="margin: 20px 0;">
+                                <div id="photoPreview" class="photo-preview">
+                                    <img id="previewImage" src="" alt="Preview" style="display: none;">
+                                    <div id="photoPlaceholder" class="photo-placeholder">
+                                        <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
+                                        <div class="text-gray">Clique para adicionar foto</div>
+                                    </div>
+                                </div>
+                                <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                                <button type="button" id="photoBtn" class="btn btn-secondary mt-20">
+                                    📷 ESCOLHER FOTO
+                                </button>
+                                <button type="button" id="removePhotoBtn" class="btn btn-secondary mt-20 hidden">
+                                    🗑️ REMOVER FOTO
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Informações básicas -->
+                        <div class="form-group">
+                            <label for="name" class="form-label">NOME COMPLETO</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                class="form-input" 
+                                placeholder="Seu nome completo"
+                            >
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="city" class="form-label">CIDADE</label>
+                                <input 
+                                    type="text" 
+                                    id="city" 
+                                    name="city" 
+                                    class="form-input" 
+                                    placeholder="Sua cidade"
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="age" class="form-label">IDADE</label>
+                                <input 
+                                    type="number" 
+                                    id="age" 
+                                    name="age" 
+                                    class="form-input" 
+                                    placeholder="Sua idade"
+                                    min="13"
+                                    max="100"
+                                >
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="church" class="form-label">IGREJA</label>
+                            <input 
+                                type="text" 
+                                id="church" 
+                                name="church" 
+                                class="form-input" 
+                                placeholder="Nome da sua igreja"
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bio" class="form-label">BIO</label>
+                            <textarea 
+                                id="bio" 
+                                name="bio" 
+                                class="form-input" 
+                                placeholder="Conte um pouco sobre você, seus interesses e experiências..."
+                                rows="4"
+                                maxlength="500"
+                            ></textarea>
+                            <div class="text-gray" style="font-size: 12px; text-align: right; margin-top: 5px;">
+                                <span id="bioCount">0</span>/500 caracteres
+                            </div>
+                        </div>
+                        
+                        <!-- Sistema de Skills -->
+                        <div class="form-group">
+                            <label class="form-label">SKILLS</label>
+                            <div class="skills-input-container">
+                                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                    <input 
+                                        type="text" 
+                                        id="skillInput" 
+                                        class="form-input" 
+                                        placeholder="Digite uma skill e pressione Enter"
+                                        style="flex: 1;"
+                                    >
+                                    <button type="button" id="addSkillBtn" class="btn btn-secondary">
+                                        ➕ ADICIONAR
+                                    </button>
+                                </div>
+                                
+                                <div id="skillsContainer" class="skills-container" style="min-height: 40px; border: 1px solid var(--dark-green); border-radius: 5px; padding: 10px; background: rgba(0, 0, 0, 0.3);">
+                                    <div id="skillsPlaceholder" class="text-gray">Nenhuma skill adicionada ainda</div>
+                                </div>
+                                
+                                <!-- Skills sugeridas -->
+                                <div class="suggested-skills" style="margin-top: 15px;">
+                                    <div class="text-gray" style="font-size: 12px; margin-bottom: 10px;">SKILLS SUGERIDAS:</div>
+                                    <div class="suggested-skills-container">
+                                        <button type="button" class="skill-suggestion">JavaScript</button>
+                                        <button type="button" class="skill-suggestion">Python</button>
+                                        <button type="button" class="skill-suggestion">React</button>
+                                        <button type="button" class="skill-suggestion">Node.js</button>
+                                        <button type="button" class="skill-suggestion">UI/UX Design</button>
+                                        <button type="button" class="skill-suggestion">Mobile</button>
+                                        <button type="button" class="skill-suggestion">Backend</button>
+                                        <button type="button" class="skill-suggestion">Frontend</button>
+                                        <button type="button" class="skill-suggestion">DevOps</button>
+                                        <button type="button" class="skill-suggestion">Database</button>
+                                        <button type="button" class="skill-suggestion">API</button>
+                                        <button type="button" class="skill-suggestion">Git</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <span id="saveText">💾 SALVAR PERFIL</span>
+                            <div id="saveLoading" class="loading hidden"></div>
+                        </button>
+                        
+                        <div class="text-center mt-20">
+                            <p class="text-gray" style="font-size: 14px;">
+                                Todos os campos são opcionais, mas quanto mais informações você fornecer, 
+                                mais fácil será para outros creators te encontrarem!
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/animations.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>

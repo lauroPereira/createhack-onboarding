@@ -1,0 +1,16 @@
+[
+  {
+    "id": "be2698f7-540b-4da9-bd2d-c48a7ccb5f83",
+    "email": "testuser@example.com",
+    "password": "password123",
+    "name": "Test User",
+    "created_at": "2025-07-15T00:34:07.618830"
+  },
+  {
+    "id": "49b59cc6-79f9-43b7-96ae-4531e8810aca",
+    "email": "lauro.s.pereira@gmail.com",
+    "password": "Lperer@10",
+    "name": "Lauro Pereira",
+    "created_at": "2025-07-15T00:37:52.163613"
+  }
+]

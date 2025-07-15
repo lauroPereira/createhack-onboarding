@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKATHON CREATORS - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="logo">HACKATHON CREATORS</div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <span class="text-gray">Olá, <span id="userName" class="text-green"></span></span>
+                    <button id="profileBtn" class="btn btn-secondary" title="Configurar Perfil">
+                        👤 PERFIL
+                    </button>
+                    <button id="logoutBtn" class="btn btn-secondary">
+                        🚪 SAIR
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="fade-in">
+                <h1>ENCONTRE SEU SQUAD</h1>
+                <p class="text-center text-gray mb-20">Conecte-se com outros creators e forme sua equipe ideal para o hackathon</p>
+                
+                <!-- Filtros -->
+                <div class="filters-container">
+                    <h3>FILTRAR CREATORS</h3>
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label for="searchName" class="form-label">Buscar por Nome</label>
+                            <input 
+                                type="text" 
+                                id="searchName" 
+                                class="form-input" 
+                                placeholder="Digite o nome..."
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="filterCity" class="form-label">Cidade</label>
+                            <select id="filterCity" class="form-input">
+                                <option value="">Todas as cidades</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="filterChurch" class="form-label">Igreja</label>
+                            <select id="filterChurch" class="form-input">
+                                <option value="">Todas as igrejas</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="filterSkill" class="form-label">Skill</label>
+                            <select id="filterSkill" class="form-input">
+                                <option value="">Todas as skills</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button id="clearFilters" class="btn btn-secondary" style="margin-top: 25px;">
+                                🔄 LIMPAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estatísticas -->
+                <div class="stats-container" style="display: flex; justify-content: center; gap: 30px; margin-bottom: 30px;">
+                    <div class="stat-item text-center">
+                        <div class="text-green" style="font-size: 24px; font-weight: bold;" id="totalParticipants">0</div>
+                        <div class="text-gray" style="font-size: 14px;">CREATORS CADASTRADOS</div>
+                    </div>
+                    <div class="stat-item text-center">
+                        <div class="text-green" style="font-size: 24px; font-weight: bold;" id="filteredCount">0</div>
+                        <div class="text-gray" style="font-size: 14px;">RESULTADOS ENCONTRADOS</div>
+                    </div>
+                </div>
+                
+                <!-- Loading -->
+                <div id="loadingParticipants" class="text-center" style="padding: 40px;">
+                    <div class="loading" style="margin: 0 auto;"></div>
+                    <p class="text-gray mt-20">Carregando creators...</p>
+                </div>
+                
+                <!-- Mensagem quando não há participantes -->
+                <div id="noParticipants" class="text-center hidden" style="padding: 40px;">
+                    <h3 class="text-gray">NENHUM CREATOR ENCONTRADO</h3>
+                    <p class="text-gray">Seja o primeiro a se cadastrar como participante!</p>
+                    <button id="createProfileBtn" class="btn btn-primary mt-20">
+                        👤 CRIAR MEU PERFIL
+                    </button>
+                </div>
+                
+                <!-- Grid de participantes -->
+                <div id="participantsGrid" class="participants-grid hidden">
+                    <!-- Participantes serão inseridos aqui via JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/animations.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/home.js"></script>
+</body>
+</html>

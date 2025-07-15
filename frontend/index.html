@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKATHON CREATORS - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">HACKATHON CREATORS</div>
+        </header>
+
+        <main>
+            <div class="form-container fade-in">
+                <h1>ACESSE SUA CONTA</h1>
+                <p class="text-center text-gray mb-20">Entre no sistema e conecte-se com outros creators</p>
+                
+                <div id="message" class="message hidden"></div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="seu@email.com"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">Senha</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="••••••••"
+                            required
+                        >
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <span id="loginText">ENTRAR NO HACK</span>
+                        <div id="loginLoading" class="loading hidden"></div>
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="text-gray">Ainda não tem conta?</p>
+                    <a href="register.html" class="link">JUNTE-SE AOS CREATORS</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/animations.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
