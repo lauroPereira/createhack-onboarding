@@ -114,6 +114,8 @@ def create_app():
             bio (str): Bio do participante
             skills (list): Habilidades do participante
             photo (str): Foto do participante
+            phone (str): Telefone do participante
+            linkedin (str): LinkedIn do participante
 
         Returns:
             dict: Dados do participante
@@ -139,8 +141,11 @@ def create_app():
             'bio': payload.get('bio'),
             'skills': payload.get('skills', []),
             'photo': payload.get('photo'),
-            'updated_at': now
+            'updated_at': now,
+            'celular': payload.get('celular'),
+            'linkedin': payload.get('linkedin')
         }
+        
         existing = supabase.table('participants').select('id').eq('user_id', user_id).execute()
         exists = bool(existing.data)
         logger.info("Participants existing: %s", exists)

@@ -178,6 +178,8 @@ const loadProfile = async () => {
             document.getElementById('age').value = profile.age || '';
             document.getElementById('church').value = profile.church || '';
             document.getElementById('bio').value = profile.bio || '';
+            document.getElementById('phone').value = profile.phone || '';
+            document.getElementById('linkedin').value = profile.linkedin || '';
             
             // Carregar skills
             currentSkills = profile.skills || [];
@@ -326,7 +328,9 @@ document.addEventListener('DOMContentLoaded', () => {
             church: document.getElementById('church').value.trim(),
             bio: document.getElementById('bio').value.trim(),
             skills: currentSkills,
-            photo: currentPhoto
+            photo: currentPhoto,
+            phone: document.getElementById('phone').value,
+            linkedin: document.getElementById('linkedin').value
         };
         
         UI.hideMessage();
@@ -422,7 +426,13 @@ const additionalStyles = `
     @media (max-width: 768px) {
         .form-container {
             padding: 20px;
-        }
+        document.getElementById('celular').addEventListener('click', function() {
+            const celular = this.value;
+            if (celular) {
+                const whatsappUrl = 'https://wa.me/${celular}';
+                window.open(whatsappUrl, '_blank');
+            }
+        });
         
         .suggested-skills-container {
             justify-content: center;
@@ -436,3 +446,20 @@ document.head.appendChild(styleSheet);
 
 // Tornar SkillsManager global para uso nos event handlers inline
 window.SkillsManager = SkillsManager;
+// Add functionality to redirect to WhatsApp when clicking on celular
+document.getElementById('celular').addEventListener('click', function() {
+    const celular = this.value;
+    if (celular) {
+        const whatsappUrl = `https://wa.me/${celular}`;
+        window.open(whatsappUrl, '_blank');
+    }
+});
+
+// Add functionality to redirect to WhatsApp when clicking on celular
+document.getElementById('celular').addEventListener('click', function() {
+    const celular = this.value;
+    if (celular) {
+        const whatsappUrl = `https://wa.me/${celular}`;
+        window.open(whatsappUrl, '_blank');
+    }
+});
