@@ -93,9 +93,9 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         
         if path == '/api/register':
-            # Validação básica
-            if not data.get('email') or not data.get('password') or not data.get('name'):
-                response = {'error': 'Email, senha e nome são obrigatórios'}
+            # Validação básica - apenas email é obrigatório
+            if not data.get('email'):
+                response = {'error': 'Email é obrigatório'}
                 self.wfile.write(json.dumps(response).encode())
                 return
             
@@ -108,12 +108,10 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode())
                 return
             
-            # Criar novo usuário
+            # Criar novo usuário apenas com email
             new_user = {
                 'id': str(uuid.uuid4()),
                 'email': data['email'],
-                'password': data['password'],
-                'name': data['name'],
                 'created_at': datetime.now().isoformat()
             }
             
@@ -121,32 +119,30 @@ class handler(BaseHTTPRequestHandler):
             save_json_file(USERS_FILE, users)
             
             response = {
-                'message': 'Usuário criado com sucesso',
+                'message': 'Email cadastrado com sucesso',
                 'user': {
                     'id': new_user['id'],
-                    'email': new_user['email'],
-                    'name': new_user['name']
+                    'email': new_user['email']
                 }
             }
             
         elif path == '/api/login':
-            if not data.get('email') or not data.get('password'):
-                response = {'error': 'Email e senha são obrigatórios'}
+            if not data.get('email'):
+                response = {'error': 'Email é obrigatório'}
                 self.wfile.write(json.dumps(response).encode())
                 return
             
             users = load_json_file(USERS_FILE)
-            user = next((u for u in users if u['email'] == data['email'] and u['password'] == data['password']), None)
+            user = next((u for u in users if u['email'] == data['email']), None)
             
             if not user:
-                response = {'error': 'Email ou senha inválidos'}
+                response = {'error': 'Email não cadastrado. Cadastre-se primeiro.'}
             else:
                 response = {
                     'message': 'Login realizado com sucesso',
                     'user': {
                         'id': user['id'],
-                        'email': user['email'],
-                        'name': user['name']
+                        'email': user['email']
                     }
                 }
                 
