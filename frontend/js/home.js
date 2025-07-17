@@ -32,14 +32,14 @@ const Render = {
         
         const phoneHtml = participant.phone ? `
             <div class="participant-phone">
-                <img src="frontend/assets/img/phone-icon.svg" alt="Phone" class="icon" />
+                <img src="frontend/assets/img/phone-icon.png" alt="Phone" class="icon" />
                 <a href="https://wa.me/${participant.phone}" target="_blank">${participant.phone}</a>
             </div>
         ` : '';
 
         const linkedinHtml = participant.linkedin ? `
             <div class="participant-linkedin">
-                <img src="frontend/assets/img/linkedin-icon.svg" alt="LinkedIn" class="icon" />
+                <img src="frontend/assets/img/linkedin-icon.png" alt="LinkedIn" class="icon" />
                 <a href="${participant.linkedin}" target="_blank">LinkedIn</a>
             </div>
         ` : '';

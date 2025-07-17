@@ -64,4 +64,16 @@ python -m flask run
 Sinta-se à vontade para contribuir com melhorias ou novas funcionalidades!
 
 ## Licença
+
+### 8. Navegue até a pasta `frontend`:
+```bash
+cd frontend
+```
+
+### 9. Execute o servidor HTTP:
+```bash
+python -m http.server 8000
+```
+
+### 10. Acesse a aplicação em `http://localhost:8000`.
 Este projeto está licenciado sob a MIT License.
