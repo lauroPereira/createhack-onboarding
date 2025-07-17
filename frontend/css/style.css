@@ -446,3 +446,9 @@ h3 {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* Styles for participant contact information */
+.participant-contact {
+    padding-top: 30px; /* Space above the contact section */
+    display: flex; /* Use flexbox for alignment */
+    justify-content: space-between; /* Space links to the edges */
+}

@@ -56,12 +56,19 @@ const Render = {
         ` : '';
         
         const linkedinHtml = participant.linkedin ? `
-                <div class="participant-linkedin">
-                    <img width="20" height="20" src="frontend/assets/img/linkedin-icon.png" alt="LinkedIn" class="icon" />
-                    <a href="${participant.linkedin}" target="_blank" class="link" data-tooltip="Ver perfil do LinkedIn">${getFirstAndLastName(participant.name)}</a>
-                </div>
+            <div class="participant-linkedin">
+                <img width="20" height="20" src="frontend/assets/img/linkedin-icon.png" alt="LinkedIn" class="icon" />
+                <a href="${participant.linkedin}" target="_blank" class="link" data-tooltip="Ver perfil do LinkedIn">${getFirstAndLastName(participant.name)}</a>
+            </div>
         ` : '';
 
+        const contactHtml = `
+            <div class="participant-contact">
+                ${phoneHtml}
+                ${linkedinHtml}
+            </div>
+        `;
+        
         const skillsHtml = participant.skills && participant.skills.length > 0
             ? participant.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
             : '<span class="text-gray">Nenhuma skill cadastrada</span>';
@@ -88,8 +95,7 @@ const Render = {
                 <div class="skills-container">
                     ${skillsHtml}
                 </div>
-                ${phoneHtml}
-                ${linkedinHtml}
+                ${contactHtml}
             </div>
         `;
     },
