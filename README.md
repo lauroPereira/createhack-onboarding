@@ -18,7 +18,7 @@ Este projeto é uma aplicação para registro de participantes em hackathons, pe
 ## Como Executar
 1. Clone o repositório:
    ```bash
-   git clone <URL_DO_REPOSITORIO>
+   git clone git@github.com:lauroPereira/createhack-onboarding.git
    cd hackathon_creators
    ```
 
