@@ -41,18 +41,24 @@ const Render = {
             const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
             return firstName + " " + lastName;
         }
+
+        const getFirstName = (name) => {
+            const parts = name.trim().split(" ");
+            const firstName = parts[0];
+            return firstName;
+        }
         
         const phoneHtml = participant.phone ? `
             <div class="participant-phone">
                 <img width="20" height="20" src="frontend/assets/img/phone-icon.png" alt="Phone" class="icon" />
-                <a href="https://wa.me/${participant.phone}" target="_blank">${formatPhoneNumber(participant.phone)}</a>
+                <a href="https://wa.me/${participant.phone}" target="_blank" class="link" data-tooltip="Conversar com ${getFirstName(participant.name)}">${formatPhoneNumber(participant.phone)}</a>
             </div>
         ` : '';
         
         const linkedinHtml = participant.linkedin ? `
                 <div class="participant-linkedin">
                     <img width="20" height="20" src="frontend/assets/img/linkedin-icon.png" alt="LinkedIn" class="icon" />
-                    <a href="${participant.linkedin}" target="_blank">${getFirstAndLastName(participant.name)}</a>
+                    <a href="${participant.linkedin}" target="_blank" class="link" data-tooltip="Ver perfil do LinkedIn">${getFirstAndLastName(participant.name)}</a>
                 </div>
         ` : '';
 

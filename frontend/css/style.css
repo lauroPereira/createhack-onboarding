@@ -225,11 +225,42 @@ h3 {
     color: var(--primary-green);
     text-decoration: none;
     transition: all 0.3s ease;
+    position: relative; /* For tooltip positioning */
 }
 
 .link:hover {
-    text-shadow: 0 0 5px var(--glow-green);
-    text-decoration: underline;
+    background-color: rgba(0, 255, 65, 0.1); /* Light background on hover */
+    border-radius: 5px; /* Rounded corners */
+}
+
+/* Icon hover effect */
+.icon {
+    transition: transform 0.3s ease;
+}
+
+.icon:hover {
+    transform: scale(1.1); /* Slightly enlarge the icon on hover */
+}
+
+/* Tooltip styles */
+.link::after {
+    content: attr(data-tooltip); /* Use data-tooltip attribute for tooltip text */
+    position: absolute;
+    bottom: 100%; /* Position above the link */
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-black);
+    color: var(--text-white);
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Prevent mouse events on tooltip */
+}
+
+.link:hover::after {
+    opacity: 1; /* Show tooltip on hover */
 }
 
 /* Cards */
