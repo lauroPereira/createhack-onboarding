@@ -30,18 +30,30 @@ const Render = {
     participantCard: (participant) => {
         const photoSrc = participant.photo || 'frontend/assets/img/default-avatar.jpg';
         
+        const formatPhoneNumber = (phone) => {
+            if (!phone) return '';
+            return `(${phone.slice(3, 5)}) ${phone.slice(5, 10)}-${phone.slice(10)}`;
+        };
+
+        const getFirstAndLastName = (name) => {
+            const parts = name.trim().split(" ");
+            const firstName = parts[0];
+            const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+            return firstName + " " + lastName;
+        }
+        
         const phoneHtml = participant.phone ? `
             <div class="participant-phone">
                 <img width="20" height="20" src="frontend/assets/img/phone-icon.png" alt="Phone" class="icon" />
-                <a href="https://wa.me/${participant.phone}" target="_blank">${participant.phone}</a>
+                <a href="https://wa.me/${participant.phone}" target="_blank">${formatPhoneNumber(participant.phone)}</a>
             </div>
         ` : '';
-
+        
         const linkedinHtml = participant.linkedin ? `
-            <div class="participant-linkedin">
-                <img width="20" height="20" src="frontend/assets/img/linkedin-icon.png" alt="LinkedIn" class="icon" />
-                <a href="${participant.linkedin}" target="_blank">LinkedIn</a>
-            </div>
+                <div class="participant-linkedin">
+                    <img width="20" height="20" src="frontend/assets/img/linkedin-icon.png" alt="LinkedIn" class="icon" />
+                    <a href="${participant.linkedin}" target="_blank">${getFirstAndLastName(participant.name)}</a>
+                </div>
         ` : '';
 
         const skillsHtml = participant.skills && participant.skills.length > 0
