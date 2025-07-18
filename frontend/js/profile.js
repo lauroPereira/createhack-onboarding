@@ -182,12 +182,27 @@ const loadProfile = async () => {
             
             // Preencher formulário
             document.getElementById('name').value = profile.name || '';
+            document.getElementById('ddd').value = profile.ddd || '';
+            if (profile.phone) {
+                const phoneNumber = profile.phone.replace(/\D/g, '');
+                let formattedPhone = phoneNumber;
+                if (phoneNumber.length > 5) {
+                    formattedPhone = phoneNumber.substring(0, 5) + '-' + phoneNumber.substring(5);
+                }
+                document.getElementById('phone').value = formattedPhone;   
+            } else {
+                document.getElementById('phone').value = '';
+            }
+
+            document.getElementById('linkedin').value = profile.linkedin || '';
+            document.getElementById('uf').value = profile.uf || '';
             document.getElementById('city').value = profile.city || '';
             document.getElementById('age').value = profile.age || '';
             document.getElementById('church').value = profile.church || '';
             document.getElementById('bio').value = profile.bio || '';
-            document.getElementById('phone').value = profile.phone || '';
-            document.getElementById('linkedin').value = profile.linkedin || '';
+            
+            
+            
             
             // Carregar skills
             currentSkills = profile.skills || [];
@@ -317,6 +332,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Contador de bio
     document.getElementById('bio').addEventListener('input', updateBioCounter);
     
+    // Máscaras para DDD e telefone
+    document.getElementById('ddd').addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) value = value.substring(0, 2);
+        e.target.value = value;
+    });
+    
+    document.getElementById('phone').addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 9) value = value.substring(0, 9);
+        
+        // Aplicar máscara 99999-9999
+        if (value.length > 5) {
+            value = value.substring(0, 5) + '-' + value.substring(5);
+        }
+        e.target.value = value;
+    });
+    
     // Formulário
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -331,12 +364,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = {
             name: document.getElementById('name').value.trim(),
             city: document.getElementById('city').value.trim(),
+            uf: document.getElementById('uf').value,
             age: document.getElementById('age').value,
             church: document.getElementById('church').value.trim(),
             bio: document.getElementById('bio').value.trim(),
             skills: currentSkills,
             photo: currentPhoto,
-            phone: document.getElementById('phone').value,
+            ddd: document.getElementById('ddd').value.trim(),
+            phone: document.getElementById('phone').value.trim().replace(/\D/g, ''),
             linkedin: document.getElementById('linkedin').value
         };
         

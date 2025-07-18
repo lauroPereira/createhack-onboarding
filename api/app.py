@@ -211,13 +211,15 @@ def create_app():
                 logger.info("Tipo de skills no payload: %s", type(payload.get("skills")))
                 data_in = supabase.table('participants').update({
                     'name': payload.get('name'),
-                    'city': payload.get('city'),
+                    'city': payload.get('city'),  # Cidade
+                    'uf': payload.get('uf'),      # UF
                     'age': payload.get('age'),
                     'church': payload.get('church'),
                     'bio': payload.get('bio'),
                     'skills': payload.get('skills'),
                     'photo': payload.get('photo'),
-                    'phone': payload.get('phone'),
+                    'phone': payload.get('phone'), # Telefone
+                    'ddd': payload.get('ddd'),     # DDD
                     'linkedin': payload.get('linkedin')
                 }).eq('user_id', user_id).execute()
                 logger.info("Participant updated: %s", remove_photo(data_in.data))
@@ -236,12 +238,14 @@ def create_app():
                 data_in = supabase.table('participants').insert({
                 'name': payload.get('name'),
                 'city': payload.get('city'),
+                'uf': payload.get('uf'),
                 'age': payload.get('age'),
                 'church': payload.get('church'),
                 'bio': payload.get('bio'),
                 'skills': payload.get('skills'),
                 'photo': payload.get('photo'),
                 'phone': payload.get('phone'),
+                'ddd': payload.get('ddd'),
                 'linkedin': payload.get('linkedin'),
                 'user_id': user_id
                 }).execute()

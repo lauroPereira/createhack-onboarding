@@ -3,7 +3,8 @@ let allParticipants = [];
 let filteredParticipants = [];
 let currentFilters = {
     name: '',
-    city: '',
+    uf: '', // UF
+    city: '', // Cidade
     church: '',
     skill: ''
 };
@@ -33,9 +34,20 @@ const Render = {
         const photoSrc = participant.photo || `${ASSETS_URL}/default-avatar.jpg`;
         
         //Funções para formatação de dados
-        const formatPhoneNumber = (phone) => {
+        const formatPhoneNumber = (ddd, phone) => {
+
+            ddd = ddd.toString();
+            phone = phone.toString();
+
             if (!phone) return '';
-            return `(${phone.slice(3, 5)}) ${phone.slice(5, 10)}-${phone.slice(10)}`;
+            if (!ddd)
+                ddd = 'XX';
+            if (phone.length != 9)
+                phone = 'XXXXX-XXXX';
+            if (ddd.length != 2)
+                ddd = 'XX';
+            
+            return `(${ddd}) ${phone.slice(0, 5)}-${phone.slice(5)}`;
         };
 
         const getFirstAndLastName = (name) => {
@@ -55,7 +67,7 @@ const Render = {
         const phoneHtml = participant.phone ? `
             <div class="participant-phone">
                 <img width="20" height="20" src="${ASSETS_URL}/phone-icon.png" alt="Phone" class="icon" />
-                <a href="https://wa.me/${participant.phone}" target="_blank" class="link" data-tooltip="Conversar com ${getFirstName(participant.name)}">${formatPhoneNumber(participant.phone)}</a>
+                <a href="https://wa.me/+55${participant.ddd}${participant.phone}" target="_blank" class="link" data-tooltip="Conversar com ${getFirstName(participant.name)}">${formatPhoneNumber(participant.ddd, participant.phone)}</a>
             </div>
         ` : '';
         
@@ -79,7 +91,8 @@ const Render = {
             : '<span class="text-gray">Nenhuma skill cadastrada</span>';
         
         const age = participant.age ? `${participant.age} anos` : '';
-        const location = [participant.city, participant.church].filter(Boolean).join(' • ');
+        const cityDisplay = participant.uf && participant.city ? `${participant.city}/${participant.uf}` : participant.city || '';
+        const location = [cityDisplay, participant.church].filter(Boolean).join(' • ');
         
         
         return `
@@ -129,9 +142,17 @@ const Render = {
 const Filters = {
     populateOptions: () => {
         // Extrair valores únicos para os filtros
+        const ufs = [...new Set(allParticipants.map(p => p.uf).filter(Boolean))].sort();
         const cities = [...new Set(allParticipants.map(p => p.city).filter(Boolean))].sort();
         const churches = [...new Set(allParticipants.map(p => p.church).filter(Boolean))].sort();
         const skills = [...new Set(allParticipants.flatMap(p => p.skills || []))].sort();
+        
+        // Popular select de UF
+        const ufSelect = document.getElementById('filterUf');
+        ufSelect.innerHTML = '<option value="">Todos os estados</option>';
+        ufs.forEach(uf => {
+            ufSelect.innerHTML += `<option value="${uf}">${uf}</option>`;
+        });
         
         // Popular select de cidades
         const citySelect = document.getElementById('filterCity');
@@ -163,6 +184,11 @@ const Filters = {
                 if (!nameMatch) return false;
             }
             
+            // Filtro por UF
+            if (currentFilters.uf && participant.uf !== currentFilters.uf) {
+                return false;
+            }
+            
             // Filtro por cidade
             if (currentFilters.city && participant.city !== currentFilters.city) {
                 return false;
@@ -189,12 +215,14 @@ const Filters = {
     clear: () => {
         currentFilters = {
             name: '',
+            uf: '',
             city: '',
             church: '',
             skill: ''
         };
         
         document.getElementById('searchName').value = '';
+        document.getElementById('filterUf').value = '';
         document.getElementById('filterCity').value = '';
         document.getElementById('filterChurch').value = '';
         document.getElementById('filterSkill').value = '';
@@ -250,6 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Filtros por select
+    document.getElementById('filterUf').addEventListener('change', (e) => {
+        currentFilters.uf = e.target.value;
+        Filters.apply();
+    });
+    
     document.getElementById('filterCity').addEventListener('change', (e) => {
         currentFilters.city = e.target.value;
         Filters.apply();

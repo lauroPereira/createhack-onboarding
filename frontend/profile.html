@@ -56,7 +56,7 @@
                         
                         <!-- Informações básicas -->
                         <div class="form-group">
-                            <label for="name" class="form-label">NOME COMPLETO</label>
+                            <label for="name" class="form-label">NOME</label>
                             <input 
                                 type="text" 
                                 id="name" 
@@ -65,15 +65,28 @@
                                 placeholder="Seu nome completo"
                             >
                         </div>
-                        <div class="form-group">
-                            <label for="phone" class="form-label">CELULAR</label>
-                            <input
-                                type="text"
-                                id="phone"
-                                name="phone"
-                                class="form-input"
-                                placeholder="Seu número de celular"
-                            >
+                        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="ddd" class="form-label">DDD</label>
+                                <input
+                                    type="text"
+                                    id="ddd"
+                                    name="ddd"
+                                    class="form-input"
+                                    placeholder="DDD"
+                                    maxlength="2"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="phone" class="form-label">CELULAR</label>
+                                <input
+                                    type="text"
+                                    id="phone"
+                                    name="phone"
+                                    class="form-input"
+                                    placeholder="Telefone"
+                                >
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="linkedin" class="form-label">LINKEDIN</label>
@@ -86,7 +99,44 @@
                             >
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="display: grid; grid-template-columns: 80px 1fr 100px; gap: 15px;">
+                            <div class="form-group">
+                                <label for="uf" class="form-label">UF</label>
+                                <select 
+                                    id="uf" 
+                                    name="uf" 
+                                    class="form-input"
+                                >
+                                    <option value="">Selecione a UF</option>
+                                    <option value="AC">AC</option>
+                                    <option value="AL">AL</option>
+                                    <option value="AP">AP</option>
+                                    <option value="AM">AM</option>
+                                    <option value="BA">BA</option>
+                                    <option value="CE">CE</option>
+                                    <option value="DF">DF</option>
+                                    <option value="ES">ES</option>
+                                    <option value="GO">GO</option>
+                                    <option value="MA">MA</option>
+                                    <option value="MT">MT</option>
+                                    <option value="MS">MS</option>
+                                    <option value="MG">MG</option>
+                                    <option value="PA">PA</option>
+                                    <option value="PB">PB</option>
+                                    <option value="PR">PR</option>
+                                    <option value="PE">PE</option>
+                                    <option value="PI">PI</option>
+                                    <option value="RJ">RJ</option>
+                                    <option value="RN">RN</option>
+                                    <option value="RS">RS</option>
+                                    <option value="RO">RO</option>
+                                    <option value="RR">RR</option>
+                                    <option value="SC">SC</option>
+                                    <option value="SP">SP</option>
+                                    <option value="SE">SE</option>
+                                    <option value="TO">TO</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label for="city" class="form-label">CIDADE</label>
                                 <input 
@@ -94,10 +144,9 @@
                                     id="city" 
                                     name="city" 
                                     class="form-input" 
-                                    placeholder="Sua cidade"
+                                    placeholder="Cidade"
                                 >
                             </div>
-                            
                             <div class="form-group">
                                 <label for="age" class="form-label">IDADE</label>
                                 <input 
