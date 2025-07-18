@@ -1,5 +1,4 @@
 import os
-import pprint
 import uuid
 from datetime import datetime
 from flask import Flask, request, jsonify
@@ -37,6 +36,28 @@ def remove_photo(resultset : dict | list):
         return resultset
         
         
+def normalize_payload(payload):
+    def parse_int(value):
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return None
+
+    return {
+        'name': payload.get('name'),
+        'city': payload.get('city'),
+        'uf': payload.get('uf'),
+        'age': parse_int(payload.get('age')),
+        'church': payload.get('church'),
+        'bio': payload.get('bio'),
+        'skills': payload.get('skills'),
+        'photo': payload.get('photo'),
+        'phone': payload.get('phone') or None,
+        'ddd': parse_int(payload.get('ddd')),
+        'linkedin': payload.get('linkedin') or None,
+        'user_id': payload.get('user_id'),
+        'updated_at': payload.get('updated_at') or None
+    }
 
 
 # --- Factory da aplicação ---
@@ -191,6 +212,8 @@ def create_app():
         logger.info("Saving participant for user %s", user_id)
 
         payload = request.get_json()
+        
+        payload = normalize_payload(payload)
         
         logger.info("Participant payload: %s", remove_photo(payload))
 
