@@ -6,17 +6,22 @@ let isEditing = false;
 // API para perfil
 const ProfileAPI = {
     get: async (userId) => {
+        console.log('Carregando perfil...');
+        console.log(userId);
         const API_BASE_URL = window.location.hostname === 'localhost'
             ? 'http://localhost:5000/api'
             : '/api';
-        const response = await fetch(`${API_BASE_URL}/participants/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/participants/${userId}`, {
+            method: 'GET'}
+        );
         
         if (response.status === 404) {
             return null; // Participante não existe ainda
         }
         
         const data = await response.json();
-        
+        console.log('Perfil carregado com sucesso!');
+        console.log(data);
         if (!response.ok) {
             throw new Error(data.error || 'Erro ao carregar perfil');
         }
@@ -24,11 +29,13 @@ const ProfileAPI = {
         return data;
     },
     
-    save: async (participantData) => {
+    save: async (participantData, userId) => {
+        console.log('Salvando perfil...');
+        console.log(participantData);
         const API_BASE_URL = window.location.hostname === 'localhost'
             ? 'http://localhost:5000/api'
             : '/api';
-        const response = await fetch(`${API_BASE_URL}/participants`, {
+        const response = await fetch(`${API_BASE_URL}/participants/${userId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -37,7 +44,8 @@ const ProfileAPI = {
         });
         
         const data = await response.json();
-        
+        console.log('Perfil salvo com sucesso!');
+        console.log(data);
         if (!response.ok) {
             throw new Error(data.error || 'Erro ao salvar perfil');
         }
@@ -321,7 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Coletar dados do formulário
         const formData = {
-            user_id: user.id,
             name: document.getElementById('name').value.trim(),
             city: document.getElementById('city').value.trim(),
             age: document.getElementById('age').value,
@@ -337,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
         UI.setLoading('saveBtn', 'saveText', 'saveLoading', true);
         
         try {
-            await ProfileAPI.save(formData);
+            await ProfileAPI.save(formData, user.id);
             
             UI.showMessage(
                 isEditing ? 'Perfil atualizado com sucesso!' : 'Perfil criado com sucesso!', 

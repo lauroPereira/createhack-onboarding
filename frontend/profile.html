@@ -38,7 +38,7 @@
                             <label class="form-label">FOTO DE PERFIL</label>
                             <div class="photo-upload-container" style="margin: 20px 0;">
                                 <div id="photoPreview" class="photo-preview">
-                                    <img id="previewImage" src="" alt="Preview" style="display: none;" onerror="this.src='frontend/assets/img/default-avatar.jpg';">
+                                    <img id="previewImage" src="" alt="Preview" style="display: none;" onerror="this.src= (window.location.hostname === 'localhost') ? 'assets/img/default-avatar.jpg' : 'frontend/assets/img/default-avatar.jpg';">
                                     <div id="photoPlaceholder" class="photo-placeholder">
                                         <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
                                         <div class="text-gray">Clique para adicionar foto</div>

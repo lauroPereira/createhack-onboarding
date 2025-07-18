@@ -8,6 +8,8 @@ let currentFilters = {
     skill: ''
 };
 
+const ASSETS_URL = window.location.hostname === 'localhost' ? 'assets/img' : 'frontend/assets/img';
+
 // API para participantes
 const ParticipantsAPI = {
     getAll: async () => {
@@ -28,8 +30,9 @@ const ParticipantsAPI = {
 // Utilitários para renderização
 const Render = {
     participantCard: (participant) => {
-        const photoSrc = participant.photo || 'frontend/assets/img/default-avatar.jpg';
+        const photoSrc = participant.photo || `${ASSETS_URL}/default-avatar.jpg`;
         
+        //Funções para formatação de dados
         const formatPhoneNumber = (phone) => {
             if (!phone) return '';
             return `(${phone.slice(3, 5)}) ${phone.slice(5, 10)}-${phone.slice(10)}`;
@@ -48,16 +51,17 @@ const Render = {
             return firstName;
         }
         
+        //HTML para contato
         const phoneHtml = participant.phone ? `
             <div class="participant-phone">
-                <img width="20" height="20" src="frontend/assets/img/phone-icon.png" alt="Phone" class="icon" />
+                <img width="20" height="20" src="${ASSETS_URL}/phone-icon.png" alt="Phone" class="icon" />
                 <a href="https://wa.me/${participant.phone}" target="_blank" class="link" data-tooltip="Conversar com ${getFirstName(participant.name)}">${formatPhoneNumber(participant.phone)}</a>
             </div>
         ` : '';
         
         const linkedinHtml = participant.linkedin ? `
             <div class="participant-linkedin">
-                <img width="20" height="20" src="frontend/assets/img/linkedin-icon.png" alt="LinkedIn" class="icon" />
+                <img width="20" height="20" src="${ASSETS_URL}/linkedin-icon.png" alt="LinkedIn" class="icon" />
                 <a href="${participant.linkedin}" target="_blank" class="link" data-tooltip="Ver perfil do LinkedIn">${getFirstAndLastName(participant.name)}</a>
             </div>
         ` : '';
@@ -69,6 +73,7 @@ const Render = {
             </div>
         `;
         
+        //HTML para skills
         const skillsHtml = participant.skills && participant.skills.length > 0
             ? participant.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
             : '<span class="text-gray">Nenhuma skill cadastrada</span>';
@@ -278,14 +283,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Efeito hover nos cards (será aplicado dinamicamente)
-    document.addEventListener('mouseenter', (e) => {
-        if (e.target.classList.contains('participant-card')) {
+    document.addEventListener('mouseover', (e) => {
+        if (e.target && e.target.classList && e.target.classList.contains('participant-card')) {
             e.target.style.transform = 'translateY(-5px) scale(1.02)';
         }
     }, true);
     
-    document.addEventListener('mouseleave', (e) => {
-        if (e.target.classList.contains('participant-card')) {
+    document.addEventListener('mouseover', (e) => {
+        if (e.target && e.target.classList && e.target.classList.contains('participant-card')) {
             e.target.style.transform = 'translateY(0) scale(1)';
         }
     }, true);
